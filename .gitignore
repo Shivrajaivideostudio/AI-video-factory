@@ -1,1 +1,45 @@
 
+# Python Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# AI Video Factory Outputs (Large Files)
+static/outputs/*
+!static/outputs/.gitkeep
+*.mp4
+*.mp3
+*.png
+*.zip
+*.pdf
+
+# Logs & Temp
+*.log
+temp/
+.pytest_cache/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Exclude duplicate/temporary suffixed files
+*-1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
+1774*
