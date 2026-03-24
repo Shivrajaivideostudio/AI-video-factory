@@ -1,1 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Video Factory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6 text-center">Owner Login</h2>
+        
+        <div id="error-box" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200 text-sm"></div>
 
+        <form id="login-form" class="space-y-4">
+            <div id="identifier-group">
+                <label class="block text-sm font-medium text-gray-400 mb-1">Email or Mobile Number</label>
+                <input type="text" id="identifier" name="identifier" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="your@email.com or 91...">
+            </div>
+            
+            <div id="otp-group" class="hidden">
+                <label class="block text-sm font-medium text-gray-400 mb-1">6-Digit OTP</label>
+                <input type="text" id="otp" name="otp" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 tracking-[0.5em] text-center font-bold text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="000000" maxlength="6">
+            </div>
+
+            <button type="button" id="main-btn" onclick="handleSendOtp()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all">
+                Send OTP
+            </button>
+        </form>
+
+        <script>
+            let currentStep = 1;
+
+            async function handleSendOtp() {
+                const identifier = document.getElementById('identifier').value;
+                if(!identifier) return alert('Enter Email or Mobile');
+                
+                const formData = new FormData();
+                formData.append('identifier', identifier);
+
+                try {
+                    const res = await fetch('/api/send-otp', { method: 'POST', body: formData });
+                    const data = await res.json();
+                    
+                    if(data.status === 'success') {
+                        document.getElementById('identifier-group').classList.add('hidden');
+                        document.getElementById('otp-group').classList.remove('hidden');
+                        const btn = document.getElementById('main-btn');
+                        btn.innerText = 'Verify & Login';
+                        btn.onclick = handleVerify;
+                        document.getElementById('error-box').classList.add('hidden');
+                    } else {
+                        showError(data.message);
+                    }
+                } catch(e) { showError('Connection error'); }
+            }
+
+            async function handleVerify() {
+                const formData = new FormData();
+                formData.append('identifier', document.getElementById('identifier').value);
+                formData.append('otp', document.getElementById('otp').value);
+
+                try {
+                    const res = await fetch('/api/verify-login', { method: 'POST', body: formData });
+                    if (res.redirected) {
+                        window.location.href = res.url;
+                        return;
+                    }
+                    const data = await res.json();
+                    if(data.status === 'pending') {
+                        showError(data.message);
+                    } else {
+                        showError(data.detail || 'Invalid OTP');
+                    }
+                } catch(e) { showError('Login failed'); }
+            }
+
+            function showError(msg) {
+                const box = document.getElementById('error-box');
+                box.innerText = msg;
+                box.classList.remove('hidden');
+            }
+        </script>
+        
+        <div class="mt-6 text-center">
+            <button onclick="alert('OTP sent!')" class="text-sm text-blue-400 hover:underline">Resend OTP</button>
+        </div>
+        
+        <div class="mt-8 text-center border-t border-gray-700 pt-4">
+            <a href="/" class="text-gray-500 hover:text-gray-300 text-sm">← Back to Access Gate</a>
+        </div>
+    </div>
+</body>
+</html>
