@@ -1,1 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Video Factory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sidebar { transition: all 0.3s ease; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.05); }
+        .dark body { background-color: #020617; color: #e2e8f0; }
+        .light body { background-color: #f8fafc; color: #1e293b; }
+        .light .glass-card { background: white; border: 1px solid #e2e8f0; color: #1e293b; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 sidebar glass-card border-r fixed h-full z-20">
+        <div class="p-6">
+            <h2 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-robot text-blue-500"></i> AI Factory
+            </h2>
+        </div>
+        <nav class="mt-4 px-4 space-y-2">
+            <a href="/dashboard" class="flex items-center gap-3 p-3 rounded-xl bg-blue-600/10 text-blue-400"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/create-video" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-500/10"><i class="fas fa-plus"></i> Create Video</a>
+            <a href="/output" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-500/10"><i class="fas fa-file-export"></i> Output/Export</a>
+            <a href="/analytics" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-500/10"><i class="fas fa-chart-line"></i> Analytics</a>
+            {% if is_owner %}
+            <a href="/admin/users" class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-500/10"><i class="fas fa-users-cog"></i> User Management</a>
+            {% endif %}
+            <a href="/logout" class="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 text-red-400"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
 
+    <!-- Main Content -->
+    <main class="ml-64 flex-1 p-8">
+        <!-- Top Bar -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold">Welcome back!</h1>
+                <p class="text-gray-500 text-sm">Active Session: {{ user.id }}</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-gray-500/10 p-1 rounded-2xl border border-gray-500/20">
+                <button onclick="setTheme('light')" class="px-4 py-2 rounded-xl hover:bg-white hover:text-black transition-all"><i class="fas fa-sun"></i></button>
+                <button onclick="setTheme('dark')" class="px-4 py-2 rounded-xl bg-blue-600 text-white shadow-lg"><i class="fas fa-moon"></i></button>
+                <button onclick="setTheme('auto')" class="px-4 py-2 rounded-xl hover:bg-blue-500/20"><i class="fas fa-magic"></i> Auto</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- AI Assistant Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold flex items-center gap-2"><i class="fas fa-comment-dots text-purple-400"></i> AI Assistant</h3>
+                        <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-lg">Online: Gemini 1.5 Pro</span>
+                    </div>
+                    <div id="ai-chat" class="h-48 overflow-y-auto mb-4 text-sm space-y-2 text-gray-400">
+                        <p>Hello! Type a command like "Video bana do" or "Dark mode on".</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="ai-input" placeholder="Type command here..." class="flex-1 bg-gray-500/10 border border-gray-500/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <button onclick="processCommand()" class="bg-purple-600 hover:bg-purple-700 px-6 rounded-xl transition-all"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card p-6 rounded-3xl">
+                        <p class="text-gray-500 text-xs uppercase tracking-wider font-bold mb-1">Total Generated</p>
+                        <h4 class="text-3xl font-bold">1,284</h4>
+                    </div>
+                    <div class="glass-card p-6 rounded-3xl">
+                        <p class="text-gray-500 text-xs uppercase tracking-wider font-bold mb-1">Jobs in Queue</p>
+                        <h4 class="text-3xl font-bold text-blue-500">12</h4>
+                    </div>
+                </div>
+
+                <!-- Manual Controls -->
+                <div class="glass-card p-6 rounded-3xl grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button class="p-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold text-sm flex flex-col items-center gap-2">
+                        <i class="fas fa-film text-xl"></i> Generate Video
+                    </button>
+                    <button class="p-4 bg-emerald-600 hover:bg-emerald-700 rounded-2xl font-bold text-sm flex flex-col items-center gap-2">
+                        <i class="fas fa-bolt text-xl"></i> Express Trailer
+                    </button>
+                    <div class="flex flex-col items-center justify-center glass-card rounded-2xl border-dashed border-2 p-2">
+                        <label class="text-xs mb-1">Auto Video</label>
+                        <input type="checkbox" class="w-10 h-5 bg-gray-700 rounded-full appearance-none checked:bg-blue-500 cursor-pointer transition-all relative after:content-[''] after:absolute after:w-4 after:h-4 after:bg-white after:rounded-full after:top-0.5 after:left-0.5 checked:after:translate-x-5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column Settings -->
+            <div class="space-y-6">
+                <div class="glass-card p-6 rounded-3xl">
+                    <h3 class="font-bold mb-4">System Controls</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Auto Mode (Smart)</span>
+                            <input type="checkbox" class="toggle-checkbox" id="auto-mode">
+                        </div>
+                        <button class="w-full py-2 border border-red-500/30 text-red-400 rounded-xl text-sm hover:bg-red-500/10">Reset All Settings</button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl">
+                    <h3 class="font-bold mb-4">Video Pipeline</h3>
+                    <div class="space-y-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs text-gray-500">Video Size</label>
+                            <select class="bg-gray-500/10 border border-gray-500/20 rounded-lg p-2 text-sm outline-none">
+                                <option>9:16 (Shorts/Reels)</option>
+                                <option>16:9 (YouTube)</option>
+                                <option>1:1 (Square)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs text-gray-500">Video Count (1-1000)</label>
+                            <input type="number" value="1" min="1" max="1000" class="bg-gray-500/10 border border-gray-500/20 rounded-lg p-2 text-sm outline-none">
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-sm">Watermark</span>
+                            <input type="checkbox" checked>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">Drive Auto-Upload</span>
+                            <input type="checkbox">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function setTheme(theme) {
+            document.documentElement.className = theme;
+            localStorage.setItem('theme', theme);
+            if(theme === 'auto') {
+                const hour = new Date().getHours();
+                document.documentElement.className = (hour > 6 && hour < 18) ? 'light' : 'dark';
+            }
+        }
+
+        async function processCommand() {
+            const input = document.getElementById('ai-input');
+            const chat = document.getElementById('ai-chat');
+            const cmd = input.value;
+            if(!cmd) return;
+
+            const p = document.createElement('p');
+            p.className = 'text-white border-l-2 border-purple-500 pl-2';
+            p.innerText = '> ' + cmd;
+            chat.appendChild(p);
+
+            input.value = '';
+            
+            try {
+                const formData = new FormData();
+                formData.append('command', cmd);
+                const res = await fetch('/api/ai-assistant', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                let resp = data.response_text;
+                
+                // Handle System Actions
+                if(data.intent === 'action') {
+                    if(cmd.toLowerCase().includes('dark')) setTheme('dark');
+                    if(cmd.toLowerCase().includes('light')) setTheme('light');
+                }
+                
+                const r = document.createElement('p');
+                r.className = 'text-purple-300';
+                r.innerHTML = `<span class="font-bold">[OpenAI Orchestrator]:</span> ${resp}`;
+                chat.appendChild(r);
+                chat.scrollTop = chat.scrollHeight;
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+  </html>
