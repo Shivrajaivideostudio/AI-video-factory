@@ -13,7 +13,7 @@ from typing import Optional, List
 from pathlib import Path
 
 from jose import jwt
-import google-genai as genai
+from google import genai
 from openai import OpenAI
 from groq import Groq
 from dotenv import load_dotenv
@@ -50,8 +50,8 @@ ALGORITHM = "HS256"
 OWNER_EMAILS = [e.strip() for e in os.getenv("OWNER_EMAILS", "").split(",") if e.strip()]
 OWNER_MOBILES = [m.strip() for m in os.getenv("OWNER_MOBILES", "").split(",") if m.strip()]
 
-# AI Clients Initialization
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# AI Clients Initialization 
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
