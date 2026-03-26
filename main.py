@@ -380,9 +380,13 @@ def purge_old_assets(user_id: str):
 
 @app.get("/", response_class=HTMLResponse)
 async def landing_page(request: Request):
-    whatsapp_link = "https://wa.me/917091523681?text=Hello%20Owner%2C%20I%20want%20to%20request%20system%20access."
-    return templates.TemplateResponse("landing.html", {"request": request, "whatsapp_link": whatsapp_link})
-
+    whatsapp_link = "https://wa.me/917091523681"
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="landing.html",
+        context={"whatsapp_link": whatsapp_link}
+    )
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
