@@ -157,22 +157,23 @@ class CreativeEngine:
         }}
         """
         try:
-            response = gemini_client.models.generate_content(
-    model="gemini-2.0-flash",
-    contents=prompt
-)
-content = response.text.strip() if response.text else "{}"
-            # Robust JSON cleaning
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0].strip()
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0].strip()
-            return json.loads(content)
-        except Exception as e:
-            print(f"Gemini Error (Scripting): {e}")
-            return await FastProcessingEngine.rapid_script(topic, language)
+    response = gemini_client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
 
+    content = response.text.strip() if response.text else "{}"
 
+    if "```json" in content:
+        content = content.split("```json")[1].split("```")[0].strip()
+    elif "```" in content:
+        content = content.split("```")[1].split("```")[0].strip()
+
+    return json.loads(content)
+
+except Exception as e:
+    print(f"Gemini Error (Scripting): {e}")
+    return await FastProcessingEngine.rapid_script(topic, language)
 class FastProcessingEngine:
     """
     Role: Groq (Llama 3) - The Speedster
