@@ -321,4 +321,4 @@ async def get_status(task_id: str, user: dict = Depends(get_current_active_user)
 @app.get("/logout")
 async def logout(response: Response):
     response.delete_cookie("access_token")
-    return RedirectResponse(url="/", status_code
+    return RedirectResponse(url="/", status_code=302)
