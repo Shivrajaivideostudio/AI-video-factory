@@ -240,8 +240,20 @@ async def read_root(request: Request):
     if await get_current_user(request):
         return RedirectResponse(url="/dashboard", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
     
-    whatsapp_link = f"https://wa.me/{OWNER_MOBILES[0]}?text=I'd%20like%20to%20request%20access%20to%20the%20AI%20Video%20Factory." if OWNER_MOBILES else "#"
-    return templates.TemplateResponse("landing.html", {"request": request, "whatsapp_link": whatsapp_link})
+    OWNER_MOBILES = ["917091523681"]
+
+whatsapp_link = (
+    f"https://wa.me/{OWNER_MOBILES[0]}?text=I'd%20like%20to%20request%20access%20to%20the%20AI%20Video%20Factory."
+    if OWNER_MOBILES else "#"
+)
+
+return templates.TemplateResponse(
+    "landing.html",
+    {
+        "request": request,
+        "whatsapp_link": whatsapp_link
+    }
+)
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
