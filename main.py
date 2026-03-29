@@ -231,30 +231,27 @@ async def background_video_generation(task_id: str, topic: str, language: str, s
         generation_status[task_id] = {"status": "failed", "progress": 100, "message": str(e)}
     finally:
         shutil.rmtree(temp_dir)
-
-
-# --- API Endpoints ---
+        # --- API Endpoints ---
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     if await get_current_user(request):
         return RedirectResponse(url="/dashboard", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
-    
+
     OWNER_MOBILES = ["917091523681"]
 
-whatsapp_link = (
-    f"https://wa.me/{OWNER_MOBILES[0]}?text=I'd%20like%20to%20request%20access%20to%20the%20AI%20Video%20Factory."
-    if OWNER_MOBILES else "#"
-)
+    whatsapp_link = (
+        f"https://wa.me/{OWNER_MOBILES[0]}?text=I%20would%20like%20to%20request%20access%20to%20the%20AI%20Video%20Factory."
+        if OWNER_MOBILES else "#"
+    )
 
-return templates.TemplateResponse(
-    "landing.html",
-    {
-        "request": request,
-        "whatsapp_link": whatsapp_link
-    }
-)
-
+    return templates.TemplateResponse(
+        "landing.html",
+        {
+            "request": request,
+            "whatsapp_link": whatsapp_link
+        }
+    )
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
